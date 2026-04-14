@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Internship Grind Schedule — ASU CS</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f12;
+    --surface: #141618;
+    --surface2: #1c1f23;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #f0f0ee;
+    --muted: #6b7280;
+    --subtle: #9ca3af;
+    --purple: #a78bfa;
+    --purple-bg: rgba(167,139,250,0.1);
+    --teal: #34d399;
+    --teal-bg: rgba(52,211,153,0.1);
+    --amber: #fbbf24;
+    --amber-bg: rgba(251,191,36,0.1);
+    --coral: #fb7185;
+    --coral-bg: rgba(251,113,133,0.1);
+    --blue: #60a5fa;
+    --blue-bg: rgba(96,165,250,0.1);
+    --gray: #9ca3af;
+    --gray-bg: rgba(156,163,175,0.08);
+    --accent: #a78bfa;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* subtle grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(167,139,250,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(167,139,250,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 4rem;
+  }
+
+  /* Header */
+  .header {
+    margin-bottom: 2.5rem;
+  }
+
+  .header-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--purple);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .header-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 1px;
+    background: var(--purple);
+  }
+
+  h1 {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .header-sub {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  /* Stats row */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 2rem;
+  }
+
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    transition: border-color 0.2s;
+  }
+
+  .stat:hover { border-color: var(--border2); }
+
+  .stat-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .stat-val {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 1.75rem;
+  }
+
+  .legend-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--subtle);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 4px 10px;
+  }
+
+  .legend-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* Day tabs */
+  .day-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 4px;
+  }
+
+  .day-tab {
+    flex: 1;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 8px 6px;
+    text-align: center;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .day-tab:hover:not(.active) {
+    color: var(--subtle);
+    background: rgba(255,255,255,0.04);
+  }
+
+  .day-tab.active {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border2);
+  }
+
+  .day-tab.weekend { opacity: 0.65; }
+  .day-tab.weekend.active { opacity: 1; }
+
+  /* Day header */
+  .day-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .day-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .day-hours {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--purple);
+    letter-spacing: 0.05em;
+  }
+
+  /* Schedule blocks */
+  .schedule {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .block {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 12px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    transition: border-color 0.15s, background 0.15s;
+    animation: fadeIn 0.2s ease forwards;
+    opacity: 0;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .block:hover {
+    border-color: var(--border2);
+    background: var(--surface2);
+  }
+
+  .block-time {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    min-width: 68px;
+    padding-top: 3px;
+    flex-shrink: 0;
+    letter-spacing: 0.02em;
+  }
+
+  .block-indicator {
+    width: 3px;
+    border-radius: 2px;
+    min-height: 36px;
+    align-self: stretch;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .block-body { flex: 1; min-width: 0; }
+
+  .block-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+
+  .block-desc {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .block-tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-top: 5px;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.03em;
+  }
+
+  /* Color variants */
+  .c-purple .block-indicator { background: var(--purple); }
+  .c-purple .block-tag { background: var(--purple-bg); color: var(--purple); }
+
+  .c-teal .block-indicator { background: var(--teal); }
+  .c-teal .block-tag { background: var(--teal-bg); color: var(--teal); }
+
+  .c-amber .block-indicator { background: var(--amber); }
+  .c-amber .block-tag { background: var(--amber-bg); color: var(--amber); }
+
+  .c-coral .block-indicator { background: var(--coral); }
+  .c-coral .block-tag { background: var(--coral-bg); color: var(--coral); }
+
+  .c-blue .block-indicator { background: var(--blue); }
+  .c-blue .block-tag { background: var(--blue-bg); color: var(--blue); }
+
+  .c-gray .block-indicator { background: var(--gray); }
+  .c-gray .block-tag { background: var(--gray-bg); color: var(--gray); }
+
+  /* Resources footer */
+  .resources {
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .resources-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .resources-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 8px;
+  }
+
+  .resource-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--subtle);
+    font-size: 12px;
+    transition: all 0.15s;
+  }
+
+  .resource-link:hover {
+    border-color: var(--border2);
+    color: var(--text);
+    background: var(--surface2);
+  }
+
+  .resource-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--purple);
+    flex-shrink: 0;
+  }
+
+  /* Weekly summary bar */
+  .week-bar {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 1.5rem;
+    height: 3px;
+  }
+
+  .week-seg {
+    flex: 1;
+    border-radius: 2px;
+    background: var(--surface2);
+    transition: background 0.2s;
+  }
+
+  .week-seg.done { background: var(--purple); }
+  .week-seg.active { background: var(--amber); }
+
+  @media (max-width: 600px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    h1 { font-size: 22px; }
+    .day-tab { font-size: 11px; padding: 7px 4px; }
+    .block-time { min-width: 56px; font-size: 9px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="header-eyebrow">ASU Computer Science · Incoming Sophomore</div>
+    <h1>Internship Grind Schedule</h1>
+    <div class="header-sub">Summer 2027 target · click any day to view its full schedule</div>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-label">hrs / day</div>
+      <div class="stat-val" id="stat-hrs">—</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">leetcode / wk</div>
+      <div class="stat-val">3–4</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">apps / wk</div>
+      <div class="stat-val">6–8</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">project hrs</div>
+      <div class="stat-val">4–6</div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-pill"><div class="legend-dot" style="background:#a78bfa"></div>leetcode / algo</div>
+    <div class="legend-pill"><div class="legend-dot" style="background:#34d399"></div>project work</div>
+    <div class="legend-pill"><div class="legend-dot" style="background:#fbbf24"></div>applications</div>
+    <div class="legend-pill"><div class="legend-dot" style="background:#fb7185"></div>networking</div>
+    <div class="legend-pill"><div class="legend-dot" style="background:#60a5fa"></div>learning</div>
+    <div class="legend-pill"><div class="legend-dot" style="background:#9ca3af"></div>admin / routine</div>
+  </div>
+
+  <div class="week-bar" id="week-bar">
+    <div class="week-seg" data-day="0"></div>
+    <div class="week-seg" data-day="1"></div>
+    <div class="week-seg" data-day="2"></div>
+    <div class="week-seg" data-day="3"></div>
+    <div class="week-seg" data-day="4"></div>
+    <div class="week-seg" data-day="5"></div>
+    <div class="week-seg" data-day="6"></div>
+  </div>
+
+  <div class="day-tabs" id="day-tabs">
+    <button class="day-tab active" data-i="0">Mon</button>
+    <button class="day-tab" data-i="1">Tue</button>
+    <button class="day-tab" data-i="2">Wed</button>
+    <button class="day-tab" data-i="3">Thu</button>
+    <button class="day-tab" data-i="4">Fri</button>
+    <button class="day-tab weekend" data-i="5">Sat</button>
+    <button class="day-tab weekend" data-i="6">Sun</button>
+  </div>
+
+  <div class="day-header">
+    <div class="day-name" id="day-name">Monday — Grind Opener</div>
+    <div class="day-hours" id="day-hours">~8.5 hrs</div>
+  </div>
+
+  <div class="schedule" id="schedule"></div>
+
+  <div class="resources">
+    <div class="resources-title">Key Resources</div>
+    <div class="resources-grid">
+      <a class="resource-link" href="https://github.com/SimplifyJobs/Summer2026-Internships" target="_blank"><div class="resource-dot"></div>SimplifyJobs GitHub</a>
+      <a class="resource-link" href="https://github.com/zapplyjobs/underclassmen-internships" target="_blank"><div class="resource-dot"></div>Underclassmen Internships</a>
+      <a class="resource-link" href="https://neetcode.io" target="_blank"><div class="resource-dot"></div>Neetcode.io</a>
+      <a class="resource-link" href="https://asu.joinhandshake.com" target="_blank"><div class="resource-dot"></div>ASU Handshake</a>
+      <a class="resource-link" href="https://simplify.jobs" target="_blank"><div class="resource-dot"></div>Simplify Autofill</a>
+      <a class="resource-link" href="https://summerofcode.withgoogle.com" target="_blank"><div class="resource-dot"></div>Google Summer of Code</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const days = [
+  {
+    name: "Monday — Grind Opener", hrs: "~8.5 hrs",
+    blocks: [
+      {time:"6:30 AM", color:"c-gray", title:"Morning routine", desc:"Wake up, eat, no phone scrolling. Treat this like a work day.", tag:"routine"},
+      {time:"7:30 AM", color:"c-purple", title:"LeetCode — easy problem", desc:"One problem, no timer pressure yet. Read, try, then study the optimal solution even if you got it right.", tag:"algo"},
+      {time:"9:00 AM", color:"c-blue", title:"Learning block", desc:"Watch one Neetcode or CS Dojo video. Topic rotation: arrays → hash maps → strings → two pointers. Take notes.", tag:"learning"},
+      {time:"10:30 AM", color:"c-teal", title:"Project work", desc:"Open your GitHub project. Fix one bug, add one feature, or write one function. Commit before you close your laptop.", tag:"project"},
+      {time:"12:00 PM", color:"c-gray", title:"Lunch break", desc:"Actual break. Step outside. Your brain needs it.", tag:"break"},
+      {time:"1:00 PM", color:"c-amber", title:"Applications block", desc:"Apply to 2–3 companies from your tracker. Use Simplify to autofill. Tailor your resume bullet for each role.", tag:"apps"},
+      {time:"2:30 PM", color:"c-coral", title:"LinkedIn / networking", desc:"Connect with 2 ASU alumni at companies you applied to. Send a short genuine note. Check CSCareers Discord.", tag:"networking"},
+      {time:"4:00 PM", color:"c-gray", title:"End-of-day review", desc:"Update your application tracker. Log what you learned. Write one thing you'll do better tomorrow.", tag:"admin"},
+    ]
+  },
+  {
+    name: "Tuesday — Deep Work Day", hrs: "~9 hrs",
+    blocks: [
+      {time:"6:30 AM", color:"c-gray", title:"Morning routine", desc:"Same as Monday. Consistency is the whole game.", tag:"routine"},
+      {time:"7:30 AM", color:"c-purple", title:"LeetCode — timed attempt", desc:"Set a 25-minute timer. Solve a new problem under pressure. Simulates real interview conditions.", tag:"algo"},
+      {time:"9:00 AM", color:"c-teal", title:"Project deep work", desc:"2 full hours, no interruptions. Build the feature you planned yesterday. Google freely — that's normal.", tag:"project"},
+      {time:"11:00 AM", color:"c-blue", title:"Course / tutorial", desc:"CS50, freeCodeCamp, or ASU coursework. Reinforce what you're working on in your project.", tag:"learning"},
+      {time:"12:00 PM", color:"c-gray", title:"Lunch", desc:"Eat away from your screen.", tag:"break"},
+      {time:"1:00 PM", color:"c-amber", title:"Resume work", desc:"Polish one bullet point. Quantify something. Add your latest project update.", tag:"apps"},
+      {time:"2:00 PM", color:"c-amber", title:"Applications block", desc:"Apply to 2–3 more roles. This week's goal is 6–8 total — Tuesday fills the quota.", tag:"apps"},
+      {time:"3:30 PM", color:"c-teal", title:"Project wrap-up + commit", desc:"Push your work to GitHub. Write a clear commit message. Even small commits matter.", tag:"project"},
+      {time:"4:30 PM", color:"c-gray", title:"Admin", desc:"Check email for recruiter responses. Reply same day, always.", tag:"admin"},
+    ]
+  },
+  {
+    name: "Wednesday — Interview Prep Focus", hrs: "~8.5 hrs",
+    blocks: [
+      {time:"6:30 AM", color:"c-gray", title:"Morning routine", desc:"Same routine. The habit is the point.", tag:"routine"},
+      {time:"7:30 AM", color:"c-purple", title:"LeetCode — review day", desc:"Re-do a problem you struggled with Mon or Tue. Understanding WHY you got it wrong is more valuable than new problems.", tag:"algo"},
+      {time:"9:00 AM", color:"c-blue", title:"Behavioral interview prep", desc:"Practice 3 STAR-format answers. Prompts: a challenge you solved, a team conflict, a time you learned fast.", tag:"learning"},
+      {time:"10:30 AM", color:"c-coral", title:"Cold outreach", desc:"Email or LinkedIn message to one professor about research, or a recruiter at a target company. Keep it 3 sentences.", tag:"networking"},
+      {time:"11:30 AM", color:"c-teal", title:"Project — README day", desc:"Write a clean README for your project. Recruiters look at your GitHub. A good README = instant credibility.", tag:"project"},
+      {time:"12:00 PM", color:"c-gray", title:"Lunch", desc:"Real break.", tag:"break"},
+      {time:"1:00 PM", color:"c-amber", title:"Company research", desc:"Pick 3 companies on your tracker. Read what they do, recent news, what their interns work on.", tag:"apps"},
+      {time:"2:30 PM", color:"c-blue", title:"GitHub profile cleanup", desc:"Add a bio, pin your best repos, make sure all repos have READMEs. Your GitHub is a portfolio.", tag:"learning"},
+      {time:"4:00 PM", color:"c-gray", title:"Weekly midpoint check", desc:"On track for 6–8 apps this week? Behind? Double up Thursday.", tag:"admin"},
+    ]
+  },
+  {
+    name: "Thursday — Momentum Day", hrs: "~8 hrs",
+    blocks: [
+      {time:"6:30 AM", color:"c-gray", title:"Morning routine", desc:"You know the drill.", tag:"routine"},
+      {time:"7:30 AM", color:"c-purple", title:"LeetCode — new medium", desc:"Push yourself to a medium-difficulty problem. Okay to look at hints. Goal is exposure, not perfection yet.", tag:"algo"},
+      {time:"9:00 AM", color:"c-teal", title:"Project feature push", desc:"Ship something new. Even a small visible change. Goal: a project you can demo in under 2 minutes by end of week.", tag:"project"},
+      {time:"11:00 AM", color:"c-amber", title:"Applications — catch-up", desc:"Haven't hit 6 apps yet? Knock out 2–3 today. Check SimplifyJobs GitHub for new postings.", tag:"apps"},
+      {time:"12:00 PM", color:"c-gray", title:"Lunch", desc:"Real break.", tag:"break"},
+      {time:"1:00 PM", color:"c-coral", title:"ASU community", desc:"Attend a club meeting (DevSun, HackDevil, ACM) or check Handshake for employer info sessions. Warm networking beats cold.", tag:"networking"},
+      {time:"3:00 PM", color:"c-blue", title:"Mock interview practice", desc:"Talk through a LeetCode solution out loud as if explaining to an interviewer. Weird at first. Essential later.", tag:"learning"},
+      {time:"4:00 PM", color:"c-gray", title:"Admin", desc:"Update tracker. Reply to any pending emails.", tag:"admin"},
+    ]
+  },
+  {
+    name: "Friday — Ship & Reflect", hrs: "~7.5 hrs",
+    blocks: [
+      {time:"6:30 AM", color:"c-gray", title:"Morning routine", desc:"Last push of the week.", tag:"routine"},
+      {time:"7:30 AM", color:"c-purple", title:"LeetCode — weekly recap", desc:"Review all problems from this week. Identify patterns. Array problems almost always involve two pointers or hash maps.", tag:"algo"},
+      {time:"9:00 AM", color:"c-teal", title:"Project demo prep", desc:"Record a 90-second Loom of your project. Upload it, add the link to your resume and LinkedIn.", tag:"project"},
+      {time:"10:30 AM", color:"c-amber", title:"Final apps of the week", desc:"Hit your weekly target. Companies often post new roles Thursday–Friday.", tag:"apps"},
+      {time:"12:00 PM", color:"c-gray", title:"Lunch", desc:"Earned it.", tag:"break"},
+      {time:"1:00 PM", color:"c-coral", title:"LinkedIn post or update", desc:"Post about something you learned or built this week — even 2 sentences. Recruiters notice.", tag:"networking"},
+      {time:"2:30 PM", color:"c-gray", title:"Weekly review", desc:"Count apps. Count LeetCode problems. Write 3 wins. Write 1 thing to improve next week.", tag:"admin"},
+      {time:"4:00 PM", color:"c-gray", title:"Plan next week", desc:"Queue up 5–8 new companies for Monday. Pick next week's LeetCode topic. Set a project goal.", tag:"admin"},
+    ]
+  },
+  {
+    name: "Saturday — Deep Project Day", hrs: "~6 hrs",
+    blocks: [
+      {time:"8:00 AM", color:"c-gray", title:"Later start — earned", desc:"Sleep in a bit. Your brain consolidates learning during sleep.", tag:"routine"},
+      {time:"9:00 AM", color:"c-teal", title:"Project sprint — 3 hrs", desc:"Longest uninterrupted build session of the week. No apps, no LeetCode. Just build. Pick one feature and finish it.", tag:"project"},
+      {time:"12:00 PM", color:"c-gray", title:"Break", desc:"Lunch. Walk. Real rest.", tag:"break"},
+      {time:"1:30 PM", color:"c-blue", title:"Deep learning", desc:"Long-form content — a full Udemy section, a CS50 lecture, or a long technical blog post.", tag:"learning"},
+      {time:"3:30 PM", color:"c-purple", title:"Optional: 1 LeetCode problem", desc:"If you feel like it. Not required. Fun problems only — explore, don't grind.", tag:"algo"},
+      {time:"5:00 PM", color:"c-gray", title:"Log off", desc:"Seriously. Rest is part of the system.", tag:"routine"},
+    ]
+  },
+  {
+    name: "Sunday — Recharge + Prep", hrs: "~4 hrs",
+    blocks: [
+      {time:"9:00 AM", color:"c-gray", title:"Slow morning", desc:"No laptop until 10am. Non-negotiable.", tag:"routine"},
+      {time:"10:00 AM", color:"c-blue", title:"Light reading", desc:"Read one article: tech news, CS career advice, or a company blog. Stay curious without grinding.", tag:"learning"},
+      {time:"11:00 AM", color:"c-purple", title:"Review algo patterns", desc:"Flip through your notes from the week. No new problems — just pattern recognition. What clicked? What didn't?", tag:"algo"},
+      {time:"12:30 PM", color:"c-gray", title:"Lunch", desc:"Cook something if you can. Real food, real break.", tag:"break"},
+      {time:"2:00 PM", color:"c-amber", title:"Next week's prep", desc:"Find and queue 5–8 new companies to apply to on Monday. Add to tracker. Write a quick plan for the week.", tag:"apps"},
+      {time:"3:30 PM", color:"c-gray", title:"Log off — actually", desc:"You need one full day to reset. Burnout kills consistency. The grind works because of the rest, not despite it.", tag:"routine"},
+    ]
+  }
+];
+
+let current = 0;
+
+function render(idx) {
+  current = idx;
+  const d = days[idx];
+
+  document.getElementById('day-name').textContent = d.name;
+  document.getElementById('day-hours').textContent = d.hrs;
+  document.getElementById('stat-hrs').textContent = d.hrs.replace('~','').replace(' hrs','');
+
+  // tabs
+  document.querySelectorAll('.day-tab').forEach((t, i) => {
+    t.classList.toggle('active', i === idx);
+  });
+
+  // week bar
+  document.querySelectorAll('.week-seg').forEach((s, i) => {
+    s.classList.remove('done','active');
+    if (i < idx) s.classList.add('done');
+    else if (i === idx) s.classList.add('active');
+  });
+
+  // blocks
+  const container = document.getElementById('schedule');
+  container.innerHTML = '';
+  d.blocks.forEach((b, i) => {
+    const el = document.createElement('div');
+    el.className = `block ${b.color}`;
+    el.style.animationDelay = `${i * 35}ms`;
+    el.innerHTML = `
+      <div class="block-time">${b.time}</div>
+      <div class="block-indicator"></div>
+      <div class="block-body">
+        <div class="block-title">${b.title}</div>
+        <div class="block-desc">${b.desc}</div>
+        <span class="block-tag">${b.tag}</span>
+      </div>
+    `;
+    container.appendChild(el);
+  });
+}
+
+// tab clicks
+document.getElementById('day-tabs').addEventListener('click', e => {
+  const tab = e.target.closest('.day-tab');
+  if (tab) render(parseInt(tab.dataset.i));
+});
+
+// week bar clicks
+document.getElementById('week-bar').addEventListener('click', e => {
+  const seg = e.target.closest('.week-seg');
+  if (seg) render(parseInt(seg.dataset.day));
+});
+
+// keyboard nav
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') render(Math.min(current + 1, 6));
+  if (e.key === 'ArrowLeft') render(Math.max(current - 1, 0));
+});
+
+render(0);
+</script>
+</body>
+</html>
